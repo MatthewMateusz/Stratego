@@ -54,6 +54,13 @@ void stratego_io::reset() {
 	#endif
 }
 
+void stratego_io::update()
+{
+#ifdef __linux__
+   refresh();
+#endif
+}
+
 std::string stratego_io::getline() {
 #ifdef _WIN32
 	std::string input = "";

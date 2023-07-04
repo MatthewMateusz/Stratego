@@ -7,6 +7,8 @@
 #include <ncurses.h>
 #endif
 
+#include "MenuGenerator.h"
+
 int main()
 {
 #ifdef __linux__
@@ -15,25 +17,59 @@ int main()
     noecho();
     cbreak();
 #endif
-    do {
-        stratego_game_operations game_manager;
-        game_manager.initialize_file_system();
-        do {
-            game_manager.menu();
-            if (game_manager.get_menu_selection() == new_game) {
-                game_manager.setup();
-            }
-            else if (game_manager.get_menu_selection() == load_game) {
-                game_manager.load();
-            }
-        } while ((!game_manager.game_is_loaded() && (game_manager.get_menu_selection() == load_game)));
-        if (game_manager.get_menu_selection() == exit_game) {
-            break;
-        }
-        game_manager.game_loop();
-        game_manager.end_game();
-    } while (1);
-   
+
+   MenuGenerator main_menu{"MAIN MENU"};
+   size_t config_id = 0;
+
+   MenuItemConfig new_game_button{};
+   new_game_button.type = MenuType::button;
+   new_game_button.title = "New Game";
+   new_game_button.is_centered = false;
+   new_game_button.id = ++config_id;
+
+   MenuItemConfig load_game_button{};
+   load_game_button.type = MenuType::button;
+   load_game_button.title = "Load Game";
+   load_game_button.is_centered = false;
+   load_game_button.id = ++config_id;
+
+   MenuItemConfig exit_button{};
+   exit_button.type = MenuType::button;
+   exit_button.title = "Exit";
+   exit_button.is_centered = false;
+   exit_button.id = ++config_id;
+
+   main_menu.add_item(new_game_button);
+   main_menu.add_item(load_game_button);
+   main_menu.add_item(exit_button);
+
+   main_menu.set_selected_by_id(new_game_button.id);
+
+   main_menu.show();
+
+   MenuItemValue selected_option{};
+   main_menu.get_selected_value(selected_option);
+
+   stratego_game_operations game_manager;
+   game_manager.initialize_file_system();
+ 
+   size_t sel_id = selected_option.id;
+   if ( sel_id == new_game_button.id )
+   {
+      game_manager.setup();
+   }
+   else if ( sel_id == load_game_button.id )
+   {
+      game_manager.load();
+   }
+   else
+   {
+      return 0;
+   }
+      
+   game_manager.game_loop();
+   game_manager.end_game();
+ 
 #ifdef __linux__
     endwin();
 #endif

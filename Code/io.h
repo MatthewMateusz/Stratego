@@ -8,5 +8,6 @@ namespace stratego_io
    int getchar();
    void clear();
    void reset();
+   void update();
    std::string getline();
 };
